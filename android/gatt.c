@@ -1358,6 +1358,9 @@ static void discover_primary_cb(uint8_t status, GSList *services,
 
 	free(cb_data);
 
+	if (conn->timeout_id > 0)
+		g_source_remove(conn->timeout_id);
+
 	conn->timeout_id = g_timeout_add_seconds(GATT_CONN_TIMEOUT,
 						connection_timeout, conn);
 }
