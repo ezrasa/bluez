@@ -1083,6 +1083,32 @@ static unsigned int send_att(struct bt_att *att, struct att_send_op *op)
 	return op->id;
 }
 
+unsigned int bt_att_send_with_id(struct bt_att *att, unsigned int id,
+					uint8_t opcode, const void *pdu,
+					uint16_t length,
+					bt_att_response_func_t callback,
+					void *user_data,
+					bt_att_destroy_func_t destroy)
+{
+	struct att_send_op *op;
+
+	if (!att || !att->io)
+		return 0;
+
+	op = create_att_send_op(opcode, pdu, length, att->mtu, callback,
+								user_data, destroy);
+	if (!op)
+		return 0;
+
+	/*
+	 * TODO: Some verification might be needed later. For now we
+	 * believe user know what is doing
+	 */
+	op->id = id;
+
+	return send_att(att, op);
+}
+
 unsigned int bt_att_send(struct bt_att *att, uint8_t opcode,
 				const void *pdu, uint16_t length,
 				bt_att_response_func_t callback, void *user_data,

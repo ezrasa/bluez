@@ -60,6 +60,12 @@ unsigned int bt_att_send(struct bt_att *att, uint8_t opcode,
 					bt_att_response_func_t callback,
 					void *user_data,
 					bt_att_destroy_func_t destroy);
+unsigned int bt_att_send_with_id(struct bt_att *att, unsigned int id,
+					uint8_t opcode, const void *pdu,
+					uint16_t length,
+					bt_att_response_func_t callback,
+					void *user_data,
+					bt_att_destroy_func_t destroy);
 bool bt_att_cancel(struct bt_att *att, unsigned int id);
 bool bt_att_cancel_all(struct bt_att *att);
 
