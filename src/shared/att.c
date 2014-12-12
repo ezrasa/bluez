@@ -1050,26 +1050,9 @@ bool bt_att_unregister_disconnect(struct bt_att *att, unsigned int id)
 	return true;
 }
 
-unsigned int bt_att_send(struct bt_att *att, uint8_t opcode,
-				const void *pdu, uint16_t length,
-				bt_att_response_func_t callback, void *user_data,
-				bt_att_destroy_func_t destroy)
+static unsigned int send_att(struct bt_att *att, struct att_send_op *op)
 {
-	struct att_send_op *op;
 	bool result;
-
-	if (!att || !att->io)
-		return 0;
-
-	op = create_att_send_op(opcode, pdu, length, att->mtu, callback,
-							user_data, destroy);
-	if (!op)
-		return 0;
-
-	if (att->next_send_id < 1)
-		att->next_send_id = 1;
-
-	op->id = att->next_send_id++;
 
 	/* Add the op to the correct queue based on its type */
 	switch (op->type) {
@@ -1098,6 +1081,29 @@ unsigned int bt_att_send(struct bt_att *att, uint8_t opcode,
 	wakeup_writer(att);
 
 	return op->id;
+}
+
+unsigned int bt_att_send(struct bt_att *att, uint8_t opcode,
+				const void *pdu, uint16_t length,
+				bt_att_response_func_t callback, void *user_data,
+				bt_att_destroy_func_t destroy)
+{
+	struct att_send_op *op;
+
+	if (!att || !att->io)
+		return 0;
+
+	op = create_att_send_op(opcode, pdu, length, att->mtu, callback,
+							user_data, destroy);
+	if (!op)
+		return 0;
+
+	if (att->next_send_id < 1)
+		att->next_send_id = 1;
+
+	op->id = att->next_send_id++;
+
+	return send_att(att, op);
 }
 
 static bool match_op_id(const void *a, const void *b)
