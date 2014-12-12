@@ -276,8 +276,12 @@ guint g_attrib_send(GAttrib *attrib, guint id, const guint8 *pdu, guint16 len,
 		destroy_cb = attrib_callbacks_remove;
 	}
 
-	return bt_att_send(attrib->att, pdu[0], (void *)pdu + 1, len - 1,
-						response_cb, cb, destroy_cb);
+	if (id == 0)
+		return bt_att_send(attrib->att, pdu[0], (void *)pdu + 1,
+					len - 1, response_cb, cb, destroy_cb);
+
+	return bt_att_send_with_id(attrib->att, id, pdu[0], (void *)pdu + 1,
+					len - 1, response_cb, cb, destroy_cb);
 }
 
 gboolean g_attrib_cancel(GAttrib *attrib, guint id)
